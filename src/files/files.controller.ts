@@ -9,6 +9,7 @@ import {
   FindOneResponse,
   FindAllResponse,
   DeleteFileResponse,
+  GetFilesOfFolderResponse,
 } from './file.pb';
 import {
   CreateFileDto,
@@ -16,6 +17,7 @@ import {
   FindAllFilesDto,
   FileNameDto,
   UpdateFilePathDto,
+  FilesInFolderDto,
 } from './dto';
 
 @Controller()
@@ -66,7 +68,7 @@ export class FilesController {
 
   /**
    * Find All method
-   * Find all files created by user
+   * Find all files created by user without a folder
    */
   @GrpcMethod(FILES_SERVICE_NAME, 'FindAll')
   async findAllFiles(payload: FindAllFilesDto): Promise<FindAllResponse> {
@@ -89,6 +91,23 @@ export class FilesController {
     return {
       message: 'File removed successfully',
       data: null,
+    };
+  }
+
+  @GrpcMethod(FILES_SERVICE_NAME, 'GetFilesOfFolder')
+  async getFilesInFolder(
+    payload: FilesInFolderDto,
+  ): Promise<GetFilesOfFolderResponse> {
+    const data = await this.filesService.findAllFilesInFolder(
+      payload.user,
+      payload.folder,
+      payload.limit,
+      payload.page,
+    );
+
+    return {
+      message: 'Files fetched successfully',
+      data,
     };
   }
 }

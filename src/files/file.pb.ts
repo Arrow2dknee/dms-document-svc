@@ -77,6 +77,26 @@ export interface DeleteFileResponse {
   data: string;
 }
 
+/** Get all files contained inside a folder */
+export interface FilesInFolder {
+  id: string;
+  name: string;
+  content: string;
+  folderName: string;
+}
+
+export interface GetFilesOfFolderRequest {
+  folder: string;
+  user: string;
+  page: string;
+  limit: string;
+}
+
+export interface GetFilesOfFolderResponse {
+  message: string;
+  data: FilesInFolder[];
+}
+
 export const FILE_PACKAGE_NAME = 'file';
 
 export interface FilesServiceClient {
@@ -89,6 +109,10 @@ export interface FilesServiceClient {
   findAll(request: FindAllRequest): Observable<FindAllResponse>;
 
   deleteFile(request: DeleteFileRequest): Observable<DeleteFileResponse>;
+
+  getFilesOfFolder(
+    request: GetFilesOfFolderRequest,
+  ): Observable<GetFilesOfFolderResponse>;
 }
 
 export interface FilesServiceController {
@@ -120,6 +144,13 @@ export interface FilesServiceController {
     | Promise<DeleteFileResponse>
     | Observable<DeleteFileResponse>
     | DeleteFileResponse;
+
+  getFilesOfFolder(
+    request: GetFilesOfFolderRequest,
+  ):
+    | Promise<GetFilesOfFolderResponse>
+    | Observable<GetFilesOfFolderResponse>
+    | GetFilesOfFolderResponse;
 }
 
 export function FilesServiceControllerMethods() {
@@ -130,6 +161,7 @@ export function FilesServiceControllerMethods() {
       'findOne',
       'findAll',
       'deleteFile',
+      'getFilesOfFolder',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(

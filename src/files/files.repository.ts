@@ -40,6 +40,7 @@ export class FilesRepository {
         name: new RegExp(search, 'i'),
         userId,
         isDeleted: false,
+        folderId: { $eq: null },
       })
       .select({
         _id: 1,
@@ -107,13 +108,34 @@ export class FilesRepository {
   async findFilesByFolderId(
     userId: string,
     folderId: string,
+    limit = '10',
+    page = '1',
   ): Promise<FileDocument[]> {
+    const resultsPerPage = parseInt(limit);
+    const currentPage = parseInt(page) - 1;
+
     return this.filesModel
       .find({
         userId: userId,
         folderId: new Types.ObjectId(folderId),
         isDeleted: false,
       })
+      .select({
+        _id: 1,
+        name: 1,
+        extension: 1,
+        content: 1,
+      })
+      .populate({
+        path: 'folderId',
+        select: {
+          _id: 1,
+          name: 1,
+        },
+      })
+      .limit(resultsPerPage)
+      .skip(resultsPerPage * currentPage)
+      .sort({ updatedAt: 'desc' })
       .exec();
   }
 }

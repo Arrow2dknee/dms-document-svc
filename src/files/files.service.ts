@@ -1,4 +1,9 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 
 import { FilesRepository } from './files.repository';
 import {
@@ -8,14 +13,19 @@ import {
   FindAllFilesDto,
   UpdateFilePathDto,
 } from './dto';
-import { File } from './file.pb';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { File, FilesInFolder } from './file.pb';
+import { PaginationDto } from '../common/dto/pagination.dto';
 import { FileMetadata } from '../common/interfaces/fileMetadata.interface';
 import { FileDocument } from './schemas/files.schema';
+import { FoldersService } from '../folders/folders.service';
 
 @Injectable()
 export class FilesService {
-  constructor(private readonly filesRepository: FilesRepository) {}
+  constructor(
+    private readonly filesRepository: FilesRepository,
+    @Inject(forwardRef(() => FoldersService))
+    private readonly foldersService: FoldersService,
+  ) {}
 
   private async validateFileById(fileId: string, userId: string) {
     const file = await this.filesRepository.findById(fileId, userId);
@@ -85,7 +95,7 @@ export class FilesService {
     const { id, folder, user } = dto;
 
     await this.validateFileById(id, user);
-    // TODO: validate folder id
+    await this.foldersService.findFolderById(folder, user);
     await this.filesRepository.updatePath(id, folder);
   }
 
@@ -98,7 +108,21 @@ export class FilesService {
   public async findAllFilesInFolder(
     userId: string,
     folderId: string,
-  ): Promise<FileDocument[]> {
-    return this.filesRepository.findFilesByFolderId(userId, folderId);
+    limit = '10',
+    page = '1',
+  ): Promise<FilesInFolder[]> {
+    const files = await this.filesRepository.findFilesByFolderId(
+      userId,
+      folderId,
+      limit,
+      page,
+    );
+
+    return files.map((file) => ({
+      id: file._id.toString(),
+      name: `${file.name}.${file.extension}`,
+      content: file.content,
+      folderName: file.folderId.name,
+    }));
   }
 }

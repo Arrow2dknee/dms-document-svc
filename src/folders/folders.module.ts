@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { FoldersController } from './folders.controller';
@@ -10,7 +10,7 @@ import { FilesModule } from '../files/files.module';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Folder.name, schema: FolderSchema }]),
-    FilesModule,
+    forwardRef(() => FilesModule),
   ],
   controllers: [FoldersController],
   providers: [FoldersService, FoldersRepository],
