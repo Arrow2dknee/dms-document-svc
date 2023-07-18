@@ -19,7 +19,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "proto:install": "npm i git+https://github.com/Arrow2dknee/dms-proto",
-    "proto:file": "protoc --plugin=node_modules/.bin/protoc-gen-ts_proto -I=./node_modules/dms-proto/proto --ts_proto_out=src/files/ node_modules/dms-proto/proto/file.proto --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.pb"
+    "proto:file": "protoc --plugin=node_modules/.bin/protoc-gen-ts_proto -I=./node_modules/dms-proto/proto --ts_proto_out=src/files/ node_modules/dms-proto/proto/file.proto --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.pb",
+    "proto:folder": "protoc --plugin=node_modules/.bin/protoc-gen-ts_proto -I=./node_modules/dms-proto/proto --ts_proto_out=src/folders/ node_modules/dms-proto/proto/folder.proto --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.pb"
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.8.18",

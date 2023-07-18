@@ -1,8 +1,8 @@
 /* eslint-disable */
-import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
-import { Observable } from "rxjs";
+import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
+import { Observable } from 'rxjs';
 
-export const protobufPackage = "file";
+export const protobufPackage = 'file';
 
 /** Create file */
 export interface CreateFileRequest {
@@ -74,7 +74,7 @@ export interface DeleteFileResponse {
   data: string;
 }
 
-export const FILE_PACKAGE_NAME = "file";
+export const FILE_PACKAGE_NAME = 'file';
 
 export interface FilesServiceClient {
   createFile(request: CreateFileRequest): Observable<CreateFileResponse>;
@@ -91,34 +91,67 @@ export interface FilesServiceClient {
 export interface FilesServiceController {
   createFile(
     request: CreateFileRequest,
-  ): Promise<CreateFileResponse> | Observable<CreateFileResponse> | CreateFileResponse;
+  ):
+    | Promise<CreateFileResponse>
+    | Observable<CreateFileResponse>
+    | CreateFileResponse;
 
   updateFilePath(
     request: UpdatePathRequest,
-  ): Promise<UpdatePathResponse> | Observable<UpdatePathResponse> | UpdatePathResponse;
+  ):
+    | Promise<UpdatePathResponse>
+    | Observable<UpdatePathResponse>
+    | UpdatePathResponse;
 
-  findOne(request: FindOneRequest): Promise<FindOneResponse> | Observable<FindOneResponse> | FindOneResponse;
+  findOne(
+    request: FindOneRequest,
+  ): Promise<FindOneResponse> | Observable<FindOneResponse> | FindOneResponse;
 
-  findAll(request: FindAllRequest): Promise<FindAllResponse> | Observable<FindAllResponse> | FindAllResponse;
+  findAll(
+    request: FindAllRequest,
+  ): Promise<FindAllResponse> | Observable<FindAllResponse> | FindAllResponse;
 
   deleteFile(
     request: DeleteFileRequest,
-  ): Promise<DeleteFileResponse> | Observable<DeleteFileResponse> | DeleteFileResponse;
+  ):
+    | Promise<DeleteFileResponse>
+    | Observable<DeleteFileResponse>
+    | DeleteFileResponse;
 }
 
 export function FilesServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["createFile", "updateFilePath", "findOne", "findAll", "deleteFile"];
+    const grpcMethods: string[] = [
+      'createFile',
+      'updateFilePath',
+      'findOne',
+      'findAll',
+      'deleteFile',
+    ];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("FilesService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcMethod('FilesService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("FilesService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcStreamMethod('FilesService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
   };
 }
 
-export const FILES_SERVICE_NAME = "FilesService";
+export const FILES_SERVICE_NAME = 'FilesService';

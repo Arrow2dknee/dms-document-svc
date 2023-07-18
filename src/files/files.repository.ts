@@ -94,4 +94,15 @@ export class FilesRepository {
       },
     );
   }
+
+  async findFilesByFolderId(
+    userId: string,
+    folderId: string,
+  ): Promise<FileDocument[]> {
+    return this.filesModel.find({
+      userId: new Types.ObjectId(userId),
+      folderId: new Types.ObjectId(folderId),
+      isDeleted: false,
+    });
+  }
 }

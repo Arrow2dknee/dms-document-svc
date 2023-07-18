@@ -20,6 +20,9 @@ export class Folder {
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Folder', default: null })
   folderId: Folder;
+
+  @Prop({ type: Boolean, default: false })
+  isDeleted: boolean;
 }
 
 export const FolderSchema = SchemaFactory.createForClass(Folder);

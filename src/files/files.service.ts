@@ -83,4 +83,11 @@ export class FilesService {
     await this.validateFileById(fileId);
     await this.filesRepository.deleteFile(fileId);
   }
+
+  public async findAllFilesInFolder(
+    userId: string,
+    folderId: string,
+  ): Promise<FileDocument[]> {
+    return this.filesRepository.findFilesByFolderId(userId, folderId);
+  }
 }
