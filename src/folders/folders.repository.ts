@@ -9,29 +9,31 @@ export class FoldersRepository {
     private readonly foldersModel: Model<FolderDocument>,
   ) {}
 
-  async findByName(name: string): Promise<FolderDocument> {
-    return this.foldersModel.findOne({ name, isDeleted: false });
+  async findByName(name: string, userId: string): Promise<FolderDocument> {
+    return this.foldersModel.findOne({ name, userId, isDeleted: false }).lean();
   }
 
   async findFolderOwnedByUser(
     userId: string,
     folderId: string,
   ): Promise<FolderDocument> {
-    return this.foldersModel.findOne({
-      userId: new Types.ObjectId(userId),
-      folderId: new Types.ObjectId(folderId),
-      isDeleted: false,
-    });
+    return this.foldersModel
+      .findOne({
+        _id: new Types.ObjectId(folderId),
+        userId: new Types.ObjectId(userId),
+        isDeleted: false,
+      })
+      .lean();
   }
 
-  async createFolderDoc(name: string): Promise<FolderDocument> {
-    return this.foldersModel.create(name);
+  async createFolderDoc(name: string, userId: string): Promise<FolderDocument> {
+    return this.foldersModel.create({ name, userId });
   }
 
-  async updateFolder(name: string): Promise<FolderDocument> {
+  async updateFolder(folderId: string, name: string): Promise<FolderDocument> {
     return this.foldersModel.findOneAndUpdate(
       {
-        name,
+        _id: new Types.ObjectId(folderId),
         isDeleted: false,
       },
       {
@@ -47,8 +49,8 @@ export class FoldersRepository {
   async deleteFolder(userId: string, folderId: string): Promise<void> {
     return this.foldersModel.findOneAndUpdate(
       {
+        _id: new Types.ObjectId(folderId),
         userId: new Types.ObjectId(userId),
-        folderId: new Types.ObjectId(folderId),
         isDeleted: false,
       },
       {

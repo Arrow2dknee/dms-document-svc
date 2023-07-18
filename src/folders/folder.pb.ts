@@ -11,6 +11,7 @@ export interface FolderMetadata {
 /** Create folder */
 export interface CreateFolderRequest {
   name: string;
+  user: string;
 }
 
 export interface CreateFolderResponse {
@@ -20,7 +21,9 @@ export interface CreateFolderResponse {
 
 /** Update folder name */
 export interface UpdateFolderNameRequest {
+  id: string;
   name: string;
+  user: string;
 }
 
 export interface UpdateFolderNameResponse {
@@ -31,6 +34,7 @@ export interface UpdateFolderNameResponse {
 /** Delete folder (if there are no files in folder) */
 export interface DeleteFolderRequest {
   id: string;
+  user: string;
 }
 
 export interface DeleteFolderResponse {

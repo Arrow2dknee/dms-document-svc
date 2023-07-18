@@ -10,15 +10,24 @@ export class FilesRepository {
     @InjectModel(File.name) private readonly filesModel: Model<FileDocument>,
   ) {}
 
-  async findById(fileId: string): Promise<FileDocument> {
-    return this.filesModel.findOne({
-      _id: new Types.ObjectId(fileId),
-      isDeleted: false,
-    });
+  async findById(fileId: string, userId: string): Promise<FileDocument> {
+    return this.filesModel
+      .findOne({
+        _id: new Types.ObjectId(fileId),
+        userId,
+        isDeleted: false,
+      })
+      .lean();
   }
 
-  async findByName(name: string): Promise<FileDocument> {
-    return this.filesModel.findOne({ name, isDeleted: false });
+  async findByName(name: string, userId: string): Promise<FileDocument> {
+    return this.filesModel
+      .findOne({
+        name: new RegExp(name, 'i'),
+        isDeleted: false,
+        userId,
+      })
+      .lean();
   }
 
   async findAll(userId: string, dto: PaginationDto): Promise<FileDocument[]> {
@@ -29,7 +38,7 @@ export class FilesRepository {
     return this.filesModel
       .find({
         name: new RegExp(search, 'i'),
-        userId: new Types.ObjectId(userId),
+        userId,
         isDeleted: false,
       })
       .select({
@@ -39,7 +48,7 @@ export class FilesRepository {
         content: 1,
       })
       .populate({
-        path: 'folder',
+        path: 'folderId',
         select: {
           _id: 1,
           name: 1,
@@ -64,7 +73,7 @@ export class FilesRepository {
     };
 
     if (folderId) {
-      updateDto.folderId = folderId;
+      updateDto.folderId = new Types.ObjectId(folderId);
     }
 
     await this.filesModel.findByIdAndUpdate(
@@ -99,10 +108,12 @@ export class FilesRepository {
     userId: string,
     folderId: string,
   ): Promise<FileDocument[]> {
-    return this.filesModel.find({
-      userId: new Types.ObjectId(userId),
-      folderId: new Types.ObjectId(folderId),
-      isDeleted: false,
-    });
+    return this.filesModel
+      .find({
+        userId: userId,
+        folderId: new Types.ObjectId(folderId),
+        isDeleted: false,
+      })
+      .exec();
   }
 }

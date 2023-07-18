@@ -42,7 +42,7 @@ export class FilesController {
   async moveFileToDifferentFolder(
     payload: UpdateFilePathDto,
   ): Promise<UpdatePathResponse> {
-    await this.filesService.updateFilePath(payload.id, payload.folder);
+    await this.filesService.updateFilePath(payload);
 
     return {
       message: 'File path updated successfully',
@@ -56,7 +56,7 @@ export class FilesController {
    */
   @GrpcMethod(FILES_SERVICE_NAME, 'FindOne')
   async findFileByName(payload: FileNameDto): Promise<FindOneResponse> {
-    const data = await this.filesService.findFileByName(payload.name);
+    const data = await this.filesService.findFileByName(payload);
 
     return {
       message: 'File fetched successfully',
@@ -84,7 +84,7 @@ export class FilesController {
    */
   @GrpcMethod(FILES_SERVICE_NAME, 'DeleteFile')
   async deleteFile(payload: FileIdDto): Promise<DeleteFileResponse> {
-    await this.filesService.removeFile(payload.id);
+    await this.filesService.removeFile(payload);
 
     return {
       message: 'File removed successfully',

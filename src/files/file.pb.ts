@@ -28,6 +28,7 @@ export interface CreateFileResponse {
 export interface UpdatePathRequest {
   id: string;
   folder: string;
+  user: string;
 }
 
 export interface UpdatePathResponse {
@@ -38,6 +39,7 @@ export interface UpdatePathResponse {
 /** Find file by name */
 export interface FindOneRequest {
   name: string;
+  user: string;
 }
 
 export interface FindOneResponse {
@@ -67,6 +69,7 @@ export interface FindAllResponse {
 /** Delete file */
 export interface DeleteFileRequest {
   id: string;
+  user: string;
 }
 
 export interface DeleteFileResponse {

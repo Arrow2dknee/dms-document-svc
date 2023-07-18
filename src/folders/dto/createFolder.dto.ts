@@ -8,4 +8,6 @@ export class CreateFolderDto implements CreateFolderRequest {
   @IsString()
   @IsNotEmpty()
   readonly name: string;
+
+  readonly user: string;
 }

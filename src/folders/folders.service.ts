@@ -3,10 +3,9 @@ import {
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
-import { Types } from 'mongoose';
 
 import { FoldersRepository } from './folders.repository';
-import { CreateFolderDto, UpdateFolderNameDto } from './dto';
+import { CreateFolderDto, FolderIdDto, UpdateFolderNameDto } from './dto';
 import { FilesService } from '../files/files.service';
 import { FolderMetadata } from './folder.pb';
 
@@ -18,12 +17,12 @@ export class FoldersService {
   ) {}
 
   async createNewFolder(dto: CreateFolderDto): Promise<FolderMetadata> {
-    const { name } = dto;
-    const folder = await this.foldersRepository.findByName(name);
+    const { name, user } = dto;
+    const folder = await this.foldersRepository.findByName(name, user);
     if (folder) {
       throw new BadRequestException('Folder name already exists');
     }
-    await this.foldersRepository.createFolderDoc(name);
+    await this.foldersRepository.createFolderDoc(name, user);
 
     return {
       name,
@@ -31,37 +30,41 @@ export class FoldersService {
   }
 
   async updateFolderName(dto: UpdateFolderNameDto): Promise<FolderMetadata> {
-    const { name } = dto;
-    const folder = await this.foldersRepository.findByName(name);
+    const { id, name, user } = dto;
+    const existingFolder = await this.foldersRepository.findFolderOwnedByUser(
+      user,
+      id,
+    );
+    if (!existingFolder) {
+      throw new NotFoundException('Folder does not exists');
+    }
+    // check if a folder with the name was created by logged-in user
+    const folder = await this.foldersRepository.findByName(name, user);
     if (folder) {
       throw new BadRequestException('Folder name already exists');
     }
-    await this.foldersRepository.updateFolder(name);
+    await this.foldersRepository.updateFolder(id, name);
 
     return {
       name,
     };
   }
 
-  async deleteFolderOwnedByUser(folderId: string) {
-    // assume an user id
-    const userId = new Types.ObjectId().toString();
+  async deleteFolderOwnedByUser(dto: FolderIdDto): Promise<void> {
+    const { id, user } = dto;
     // find folder owned by user
-    const folder = await this.foldersRepository.findFolderOwnedByUser(
-      userId,
-      folderId,
-    );
+    const folder = await this.foldersRepository.findFolderOwnedByUser(user, id);
     if (!folder) {
       throw new NotFoundException('Folder does not exists');
     }
     // find if any files exist for given folder id
-    const data = await this.filesService.findAllFilesInFolder(userId, folderId);
+    const data = await this.filesService.findAllFilesInFolder(user, id);
     if (data.length) {
       throw new BadRequestException(
         'Folder contains files. Remove all files before proceeding',
       );
     }
 
-    await this.foldersRepository.deleteFolder(userId, folderId);
+    await this.foldersRepository.deleteFolder(user, id);
   }
 }

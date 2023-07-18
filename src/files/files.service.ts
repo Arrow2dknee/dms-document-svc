@@ -1,7 +1,13 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 
 import { FilesRepository } from './files.repository';
-import { CreateFileDto, FindAllFilesDto } from './dto';
+import {
+  CreateFileDto,
+  FileIdDto,
+  FileNameDto,
+  FindAllFilesDto,
+  UpdateFilePathDto,
+} from './dto';
 import { File } from './file.pb';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { FileMetadata } from '../common/interfaces/fileMetadata.interface';
@@ -11,8 +17,8 @@ import { FileDocument } from './schemas/files.schema';
 export class FilesService {
   constructor(private readonly filesRepository: FilesRepository) {}
 
-  private async validateFileById(fileId: string) {
-    const file = await this.filesRepository.findById(fileId);
+  private async validateFileById(fileId: string, userId: string) {
+    const file = await this.filesRepository.findById(fileId, userId);
 
     if (!file) {
       throw new BadRequestException('File does not exists');
@@ -29,8 +35,9 @@ export class FilesService {
     };
   }
 
-  public async findFileByName(name: string): Promise<FileMetadata> {
-    const file = await this.filesRepository.findByName(name);
+  public async findFileByName(dto: FileNameDto): Promise<FileMetadata> {
+    const { name, user } = dto;
+    const file = await this.filesRepository.findByName(name, user);
 
     if (!file) {
       throw new BadRequestException('File does not exists');
@@ -41,7 +48,7 @@ export class FilesService {
 
   public async createNewFile(dto: CreateFileDto): Promise<File> {
     // Validate if file name already exists
-    const result = await this.filesRepository.findByName(dto.name);
+    const result = await this.filesRepository.findByName(dto.name, dto.userId);
     if (result) {
       throw new BadRequestException(
         'File name is taken. Choose another file name',
@@ -74,14 +81,18 @@ export class FilesService {
     }));
   }
 
-  public async updateFilePath(fileId: string, folderId: string): Promise<void> {
-    await this.validateFileById(fileId);
-    await this.filesRepository.updatePath(fileId, folderId);
+  public async updateFilePath(dto: UpdateFilePathDto): Promise<void> {
+    const { id, folder, user } = dto;
+
+    await this.validateFileById(id, user);
+    // TODO: validate folder id
+    await this.filesRepository.updatePath(id, folder);
   }
 
-  public async removeFile(fileId: string): Promise<void> {
-    await this.validateFileById(fileId);
-    await this.filesRepository.deleteFile(fileId);
+  public async removeFile(dto: FileIdDto): Promise<void> {
+    const { id, user } = dto;
+    await this.validateFileById(id, user);
+    await this.filesRepository.deleteFile(id);
   }
 
   public async findAllFilesInFolder(

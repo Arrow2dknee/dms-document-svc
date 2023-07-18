@@ -1,4 +1,4 @@
-import { Body, Controller, Param } from '@nestjs/common';
+import { Body, Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 
 import { FoldersService } from './folders.service';
@@ -39,10 +39,8 @@ export class FoldersController {
   }
 
   @GrpcMethod(FOLDER_SERVICE_NAME, 'DeleteFolder')
-  async deleteFolder(
-    @Param() { id }: FolderIdDto,
-  ): Promise<DeleteFolderResponse> {
-    await this.foldersService.deleteFolderOwnedByUser(id);
+  async deleteFolder(@Body() dto: FolderIdDto): Promise<DeleteFolderResponse> {
+    await this.foldersService.deleteFolderOwnedByUser(dto);
 
     return {
       message: 'Folder deleted successfully',

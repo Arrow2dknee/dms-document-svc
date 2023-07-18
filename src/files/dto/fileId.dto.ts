@@ -1,7 +1,11 @@
 import { IsNotEmpty, IsMongoId } from 'class-validator';
 
-export class FileIdDto {
+import { DeleteFileRequest } from '../file.pb';
+
+export class FileIdDto implements DeleteFileRequest {
   @IsMongoId()
   @IsNotEmpty()
   readonly id: string;
+
+  readonly user: string;
 }
