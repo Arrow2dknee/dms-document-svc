@@ -1,10 +1,5 @@
-import {
-  Injectable,
-  BadRequestException,
-  NotFoundException,
-  Inject,
-  forwardRef,
-} from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 
 import { FoldersRepository } from './folders.repository';
 import {
@@ -31,7 +26,9 @@ export class FoldersService {
       folderId,
     );
     if (!folder) {
-      throw new NotFoundException('Folder does not exists');
+      throw new RpcException({
+        message: 'Folder does not exists',
+      });
     }
 
     return folder;
@@ -41,7 +38,9 @@ export class FoldersService {
     const { name, user } = dto;
     const folder = await this.foldersRepository.findByName(name, user);
     if (folder) {
-      throw new BadRequestException('Folder name already exists');
+      throw new RpcException({
+        message: 'Folder name already exists',
+      });
     }
     await this.foldersRepository.createFolderDoc(name, user);
 
@@ -57,7 +56,9 @@ export class FoldersService {
     // check if a folder with the name was created by logged-in user
     const folder = await this.foldersRepository.findByName(name, user);
     if (folder) {
-      throw new BadRequestException('Folder name already exists');
+      throw new RpcException({
+        message: 'Folder name already exists',
+      });
     }
     await this.foldersRepository.updateFolder(id, name);
 
@@ -74,9 +75,9 @@ export class FoldersService {
     // find if any files exist for given folder id
     const data = await this.filesService.findAllFilesInFolder(user, id);
     if (data.length) {
-      throw new BadRequestException(
-        'Folder contains files. Remove all files before proceeding',
-      );
+      throw new RpcException({
+        message: 'Folder contains files. Remove all files before proceeding',
+      });
     }
 
     await this.foldersRepository.deleteFolder(user, id);

@@ -1,9 +1,5 @@
-import {
-  Injectable,
-  BadRequestException,
-  Inject,
-  forwardRef,
-} from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 
 import { FilesRepository } from './files.repository';
 import {
@@ -31,7 +27,9 @@ export class FilesService {
     const file = await this.filesRepository.findById(fileId, userId);
 
     if (!file) {
-      throw new BadRequestException('File does not exists');
+      throw new RpcException({
+        message: 'File does not exists',
+      });
     }
 
     return file;
@@ -50,7 +48,9 @@ export class FilesService {
     const file = await this.filesRepository.findByName(name, user);
 
     if (!file) {
-      throw new BadRequestException('File does not exists');
+      throw new RpcException({
+        message: 'File does not exists',
+      });
     }
 
     return this.getFileMetadata(file);
@@ -60,9 +60,9 @@ export class FilesService {
     // Validate if file name already exists
     const result = await this.filesRepository.findByName(dto.name, dto.userId);
     if (result) {
-      throw new BadRequestException(
-        'File name is taken. Choose another file name',
-      );
+      throw new RpcException({
+        message: 'File name is taken. Choose another file name',
+      });
     }
     const file = await this.filesRepository.saveFile(dto);
 

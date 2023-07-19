@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, UseFilters, UsePipes } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 
 import { FilesService } from './files.service';
@@ -19,8 +19,12 @@ import {
   UpdateFilePathDto,
   FilesInFolderDto,
 } from './dto';
+import { ExceptionFilter } from '../common/filters/exception.filter';
+import { ValidationPipe } from '../common/pipes/validation.pipe';
 
 @Controller()
+@UseFilters(new ExceptionFilter())
+@UsePipes(new ValidationPipe())
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 

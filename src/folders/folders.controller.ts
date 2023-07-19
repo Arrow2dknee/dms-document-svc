@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, UseFilters, UsePipes } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 
 import { FoldersService } from './folders.service';
@@ -15,8 +15,12 @@ import {
   DeleteFolderResponse,
   GetFoldersResponse,
 } from './folder.pb';
+import { ExceptionFilter } from '../common/filters/exception.filter';
+import { ValidationPipe } from '../common/pipes/validation.pipe';
 
 @Controller()
+@UseFilters(new ExceptionFilter())
+@UsePipes(new ValidationPipe())
 export class FoldersController {
   constructor(private readonly foldersService: FoldersService) {}
 
